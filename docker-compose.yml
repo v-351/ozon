@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  url-shortener:
+    build: ./
+    command: ./url-shortener -postgres
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=123
+
+  db:
+    restart: always
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=123
+    expose:
+      - 5432
