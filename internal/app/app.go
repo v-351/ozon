@@ -6,7 +6,6 @@ import (
 	"github.com/v-351/url-shortener/internal/service"
 
 	"log"
-	"sync"
 )
 
 func Run(postgresFlag *bool) {
@@ -19,7 +18,7 @@ func Run(postgresFlag *bool) {
 		storage = service.NewMemoryStorage(50)
 		log.Println("InMemory as storage: flag ==", *postgresFlag)
 	}
-	service := &service.Service{Storage: storage, Mu: sync.Mutex{}}
+	service := &service.Service{Storage: storage}
 	server := &server.Server{Service: service}
 
 	server.Run()

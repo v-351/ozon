@@ -1,13 +1,10 @@
-FROM golang:latest
-
-ENV GOPATH=/
-
-COPY cmd/ cmd/
-COPY internal/ internal/
-COPY go.mod go.mod
-COPY go.sum go.sum
-
+FROM golang:latest as builder
+WORKDIR /build
+COPY . .
 RUN go mod download
-RUN go build -o url-shortener ./cmd/url-shortener/main.go
 
-CMD [ "./url-shortener" ]
+RUN CGO_ENABLED=0 GOOS=linux go build -o url-shortener cmd/url-shortener/main.go
+
+FROM scratch
+COPY --from=builder build/url-shortener url-shortener
+CMD ["./url-shortener"]

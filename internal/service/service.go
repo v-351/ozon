@@ -15,7 +15,7 @@ type Storage interface {
 
 type Service struct {
 	Storage Storage
-	Mu      sync.Mutex
+	mu      sync.Mutex
 }
 
 func (s *Service) Put(raw string) (string, error) {
@@ -27,7 +27,8 @@ func (s *Service) Put(raw string) (string, error) {
 
 	var candidate string
 
-	s.Mu.Lock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	if val, ok := s.Storage.GetShort(raw); ok {
 		return val, nil
@@ -41,8 +42,6 @@ func (s *Service) Put(raw string) (string, error) {
 			break
 		}
 	}
-
-	s.Mu.Unlock()
 
 	return candidate, nil
 }
