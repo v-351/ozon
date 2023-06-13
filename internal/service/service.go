@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"net/url"
+	"sync"
 )
 
 type Storage interface {
@@ -14,6 +15,7 @@ type Storage interface {
 
 type Service struct {
 	Storage Storage
+	Mu      sync.Mutex
 }
 
 func (s *Service) Put(raw string) (string, error) {
@@ -23,11 +25,14 @@ func (s *Service) Put(raw string) (string, error) {
 		return "", errors.New("invalid URL")
 	}
 
+	var candidate string
+
+	s.Mu.Lock()
+
 	if val, ok := s.Storage.GetShort(raw); ok {
 		return val, nil
 	}
 
-	var candidate string
 	for i := 0; i < 5; i++ {
 		candidate = generate()
 		var ok bool
@@ -36,6 +41,9 @@ func (s *Service) Put(raw string) (string, error) {
 			break
 		}
 	}
+
+	s.Mu.Unlock()
+
 	return candidate, nil
 }
 

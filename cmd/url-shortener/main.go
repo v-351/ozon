@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/v-351/ozon/internal/app"
+	"github.com/v-351/url-shortener/internal/app"
 )
 
 func main() {

@@ -1,11 +1,12 @@
 package app
 
 import (
-	"github.com/v-351/ozon/internal/postgres"
-	"github.com/v-351/ozon/internal/server"
-	"github.com/v-351/ozon/internal/service"
+	"github.com/v-351/url-shortener/internal/postgres"
+	"github.com/v-351/url-shortener/internal/server"
+	"github.com/v-351/url-shortener/internal/service"
 
 	"log"
+	"sync"
 )
 
 func Run(postgresFlag *bool) {
@@ -18,7 +19,7 @@ func Run(postgresFlag *bool) {
 		storage = service.NewMemoryStorage(50)
 		log.Println("InMemory as storage: flag ==", *postgresFlag)
 	}
-	service := &service.Service{Storage: storage}
+	service := &service.Service{Storage: storage, Mu: sync.Mutex{}}
 	server := &server.Server{Service: service}
 
 	server.Run()

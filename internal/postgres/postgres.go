@@ -16,6 +16,7 @@ type Postgres struct {
 
 func New() *Postgres {
 	pool, err := pgxpool.New(context.Background(), pgURL)
+
 	if err != nil {
 		log.Fatalf("Unable to create connection pool: %v\n", err)
 	}
@@ -42,8 +43,8 @@ func migrate(pool *pgxpool.Pool) {
 }
 
 func (pg *Postgres) Put(raw string, short string) {
-	query := "INSERT INTO urltable (rawurl, shorturl) VALUES ('" + raw + "' , '" + short + "');"
-	_, err := pg.pool.Exec(context.Background(), query)
+	query := `INSERT INTO urltable (rawurl, shorturl) VALUES ($1 , $2);`
+	_, err := pg.pool.Exec(context.Background(), query, raw, short)
 	if err != nil {
 		log.Printf("unable to insert row: %v", err)
 	}
@@ -51,7 +52,7 @@ func (pg *Postgres) Put(raw string, short string) {
 
 func (pg *Postgres) GetRaw(short string) (string, bool) {
 	var result string
-	row := pg.pool.QueryRow(context.Background(), "SELECT rawurl FROM urltable WHERE shorturl ='"+short+"';")
+	row := pg.pool.QueryRow(context.Background(), `SELECT rawurl FROM urltable WHERE shorturl = $1;`, short)
 	err := row.Scan(&result)
 	log.Printf("GetRaw(%v)= %v", short, result)
 	if err != nil {
@@ -66,7 +67,7 @@ func (pg *Postgres) GetRaw(short string) (string, bool) {
 
 func (pg *Postgres) GetShort(raw string) (string, bool) {
 	var result string
-	row := pg.pool.QueryRow(context.Background(), "SELECT shorturl FROM urltable WHERE rawurl = '"+raw+"';")
+	row := pg.pool.QueryRow(context.Background(), `SELECT shorturl FROM urltable WHERE rawurl = $1;`, raw)
 	err := row.Scan(&result)
 	log.Printf("GetShort(%v)= %v", raw, result)
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/v-351/ozon/internal/service"
+	"github.com/v-351/url-shortener/internal/service"
 )
 
 const portNumber = ":8080"
@@ -18,7 +18,6 @@ type Server struct {
 }
 
 func (s *Server) Run() {
-	//s.Server.Addr = portNumber
 	s.Server = &http.Server{Addr: portNumber}
 	r := chi.NewRouter()
 	r.Get("/{shortURL}", s.getURL)
